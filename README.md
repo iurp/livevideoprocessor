@@ -72,7 +72,8 @@ npm run package
 
 ## 关于作者
 
-关注我的公众号「**西风的漫谈**」，获取更多创业和AI的分享。
+- **个人主页**：[www.ikamobile.cn](https://www.ikamobile.cn)
+- **公众号**：「**西风的漫谈**」，获取更多创业和AI的分享
 
 ![公众号二维码](./screenshots/qrcode.png)
 
