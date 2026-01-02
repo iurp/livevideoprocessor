@@ -75,7 +75,7 @@ npm run package
 - **个人主页**：[www.ikamobile.cn](https://www.ikamobile.cn)
 - **公众号**：「**西风的漫谈**」，获取更多创业和AI的分享
 
-![公众号二维码](./screenshots/qrcode.png)
+<img src="./screenshots/qrcode.png" alt="公众号二维码" width="200">
 
 ## License
 
