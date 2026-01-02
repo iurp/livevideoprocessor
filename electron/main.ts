@@ -12,8 +12,19 @@ function getFFmpegPath(): string {
   if (app.isPackaged) {
     // 打包后，FFmpeg 在 extraResources 中
     const platform = process.platform
+    const arch = process.arch
     const ffmpegName = platform === 'win32' ? 'ffmpeg.exe' : 'ffmpeg'
-    const resourcePath = path.join(process.resourcesPath, '@ffmpeg-installer', platform === 'win32' ? 'win32-x64' : platform === 'darwin' ? 'darwin-x64' : 'linux-x64', ffmpegName)
+
+    let platformDir: string
+    if (platform === 'win32') {
+      platformDir = 'win32-x64'
+    } else if (platform === 'darwin') {
+      platformDir = arch === 'arm64' ? 'darwin-arm64' : 'darwin-x64'
+    } else {
+      platformDir = 'linux-x64'
+    }
+
+    const resourcePath = path.join(process.resourcesPath, '@ffmpeg-installer', platformDir, ffmpegName)
     if (fs.existsSync(resourcePath)) {
       return resourcePath
     }
