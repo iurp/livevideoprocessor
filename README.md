@@ -22,10 +22,10 @@ AI 自动分析直播内容，一键提取精华片段。
 ## 下载安装
 
 ### macOS
-[下载 macOS 版本](https://github.com/你的用户名/livevideoprocessor/releases)
+[下载 macOS 版本](https://github.com/iurp/livevideoprocessor/releases)
 
 ### Windows
-[下载 Windows 版本](https://github.com/你的用户名/livevideoprocessor/releases)
+[下载 Windows 版本](https://github.com/iurp/livevideoprocessor/releases)
 
 ## 使用方法
 
@@ -65,7 +65,7 @@ npm run package
 
 ## 反馈与交流
 
-- **问题反馈**：[GitHub Issues](https://github.com/你的用户名/livevideoprocessor/issues)
+- **问题反馈**：[GitHub Issues](https://github.com/iurp/livevideoprocessor/issues)
 - **功能建议**：欢迎提 Issue 或 PR
 
 ---
