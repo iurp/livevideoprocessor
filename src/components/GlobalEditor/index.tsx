@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react'
 import { Highlight, SubtitleItem, AnalysisResult } from '../../types'
 import { formatTime, parseTimeToMs } from '../../services/subtitle'
 import './styles.css'
+const toVideoUrl = (p: string) => `file:///${p.replace(/\\/g, '/')}`
 
 // 预定义颜色
 const COLORS = [
@@ -42,6 +43,17 @@ export function GlobalEditor({ videoPath, highlights, subtitles, videoDuration, 
   const transcriptRef = useRef<HTMLDivElement>(null)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(videoDuration || 0)
+  const [silences, setSilences] = useState<Array<{ start: number; end: number }>>([])
+  const [detecting, setDetecting] = useState(false)
+    useEffect(() => {
+    if (!videoPath || duration <= 0 || detecting || silences.length > 0) return
+    setDetecting(true)
+    window.electronAPI
+      .detectSilence({ inputPath: videoPath, noiseDb: -30, minDuration: 3, totalDuration: duration })
+      .then((result) => setSilences(result))
+      .finally(() => setDetecting(false))
+  }, [videoPath, duration])
+
   const [selectedHighlight, setSelectedHighlight] = useState<number | null>(null)
   const [editingHighlights, setEditingHighlights] = useState<Highlight[]>(() =>
     highlights.map((h, i) => ({ ...h, id: `h${i}` }))
@@ -243,7 +255,7 @@ export function GlobalEditor({ videoPath, highlights, subtitles, videoDuration, 
           <div className="video-wrapper">
             <video
               ref={videoRef}
-              src={`file://${videoPath}`}
+              src={toVideoUrl(videoPath)}
               onLoadedMetadata={handleLoadedMetadata}
               onTimeUpdate={handleTimeUpdate}
               controls
@@ -252,6 +264,13 @@ export function GlobalEditor({ videoPath, highlights, subtitles, videoDuration, 
 
           {/* 主时间轴 - 带色块标注 */}
           <div className="main-timeline">
+            {detecting&& (
+            <div className="detect-hint">
+            <div className="spinner" />
+            正在解析静音片段,请稍候...
+           </div>
+              )}
+
             <div
               className="timeline-track"
               onClick={(e) => {
@@ -272,6 +291,20 @@ export function GlobalEditor({ videoPath, highlights, subtitles, videoDuration, 
                   onClick={(e) => {
                     e.stopPropagation()
                     handleHighlightClick(i)
+                  }}
+                />
+              ))}
+              {silences.map((s, i) => (
+                <div
+                  key={`silence-${i}`}
+                  style={{
+                    position: 'absolute',
+                    left: `${(s.start / duration) * 100}%`,
+                    width: `${((s.end - s.start) / duration) * 100}%`,
+                    top: 0,
+                    bottom: 0,
+                    background: 'rgba(120, 120, 120, 0.45)',
+                    pointerEvents: 'none'
                   }}
                 />
               ))}

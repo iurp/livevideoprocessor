@@ -55,7 +55,14 @@ declare global {
       }) => Promise<{ success: boolean }>
       selectSavePath: (options: { defaultPath?: string }) => Promise<string | null>
       getConfig: () => Promise<Partial<AppConfig>>
-      setConfig: (config: Partial<AppConfig>) => Promise<void>
+      setConfig: (config: Partial<AppConfig>) => Promise<void>,
+            detectSilence: (options: {
+        inputPath: string
+        noiseDb: number
+        minDuration: number
+        totalDuration: number
+      }) => Promise<Array<{ start: number; end: number }>>
+
     }
   }
 }

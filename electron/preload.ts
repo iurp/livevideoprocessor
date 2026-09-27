@@ -31,6 +31,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
     startTime: number
     endTime: number
   }) => ipcRenderer.invoke('export-clip', options),
+    detectSilence: (options: {
+    inputPath: string
+    noiseDb: number
+    minDuration: number
+    totalDuration: number
+  }) => ipcRenderer.invoke('detect-silence', options),
+
 
   selectSavePath: (options: { defaultPath?: string }) =>
     ipcRenderer.invoke('select-save-path', options),

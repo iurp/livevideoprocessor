@@ -318,3 +318,23 @@ body {
   justify-content: center;
   margin-top: 20px;
 }
+
+.detect-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  color: #666;
+  font-size: 14px;
+}
+
+.detect-hint .spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ccc;
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  flex-shrink: 0;
+}
