@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState,useRef,useEffect } from 'react'
 import { VideoImport } from './components/VideoImport'
-import { GlobalEditor } from './components/GlobalEditor'
+import { GlobalEditor} from './components/GlobalEditor'
 import { Settings } from './components/Settings'
 import { AppStep, SubtitleItem, AnalysisResult, Highlight } from './types'
 
@@ -12,6 +12,16 @@ function App() {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [showSettings, setShowSettings] = useState(false)
+    // 视频真实时长（秒）——唯一事实源：视频文件本身
+  const [videoDuration, setVideoDuration] = useState(0)
+  const probeRef = useRef<HTMLVideoElement>(null)
+
+  // 换视频时先清零，避免残留上一个视频的数字
+  useEffect(() => {
+    setVideoDuration(0)
+  }, [videoPath])
+
+  const toVideoUrl = (p: string) => `file:///${p.replace(/\\/g, '/')}`
 
   // 处理字幕文件选择
   const handleSubtitleSelect = async (path: string) => {
@@ -69,14 +79,22 @@ function App() {
     }
   }
 
-  // 计算视频总时长（从字幕推算）
-  const getVideoDuration = () => {
-    if (subtitles.length === 0) return 0
-    return subtitles[subtitles.length - 1].end / 1000
-  }
-
   return (
     <div className="app">
+      {/* 隐藏探测器：只读视频元数据，不显示不播放 */}
+      {videoPath && (
+        <video
+          ref={probeRef}
+          src={toVideoUrl(videoPath)}
+          preload="metadata"
+          style={{ display: 'none' }}
+          onLoadedMetadata={() => {
+            const d = probeRef.current?.duration
+            if (d && Number.isFinite(d)) setVideoDuration(d)
+          }}
+        />
+      )}
+
       {/* 设置按钮 - 始终显示在右上角 */}
       <button
         className="settings-btn"
@@ -143,7 +161,7 @@ function App() {
           videoPath={videoPath}
           highlights={analysisResult.highlights}
           subtitles={subtitles}
-          videoDuration={getVideoDuration()}
+          videoDuration={videoDuration}
           analysisResult={analysisResult}
           onExport={handleExport}
           onBack={() => setStep('import')}

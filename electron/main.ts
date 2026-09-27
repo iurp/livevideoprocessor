@@ -165,6 +165,44 @@ ipcMain.handle('export-clip', async (_event, options: {
   })
 })
 
+// IPC: 检测无声片段
+ipcMain.handle('detect-silence', async (_event, options: {
+  inputPath: string
+  noiseDb: number
+  minDuration: number
+  totalDuration: number
+}) => {
+  return new Promise((resolve, reject) => {
+    const silences: Array<{ start: number; end: number }> = []
+    let currentStart: number | null = null
+
+    ffmpeg(options.inputPath)
+      .outputOptions([
+        '-vn',
+        '-af', `silencedetect=noise=${options.noiseDb}dB:d=${options.minDuration}`,
+        '-f', 'null'
+      ])
+      .output('-')
+      .on('stderr', (line: string) => {
+        const startMatch = line.match(/silence_start: ([\d.]+)/)
+        const endMatch = line.match(/silence_end: ([\d.]+)/)
+        if (startMatch) currentStart = parseFloat(startMatch[1])
+        if (endMatch && currentStart !== null) {
+          silences.push({ start: currentStart, end: parseFloat(endMatch[1]) })
+          currentStart = null
+        }
+      })
+      .on('end', () => {
+        if (currentStart !== null) {
+          silences.push({ start: currentStart, end: options.totalDuration })
+        }
+        resolve(silences)
+      })
+      .on('error', (err) => reject(err))
+      .run()
+  })
+})
+
 // IPC: 选择保存路径
 ipcMain.handle('select-save-path', async (_event, options: { defaultPath?: string }) => {
   const result = await dialog.showSaveDialog({
@@ -240,7 +278,7 @@ ipcMain.handle('analyze-subtitle', async (_event, subtitles: SubtitleItem[]) => 
 }
 
 要求：
-1. 提取 5-10 个核心要点，每个要点必须有对应的视频时间段
+1. 提取要点无下限，要是无精华片段，不提取；
 2. 每个片段应包含完整的表达，时长建议 1-5 分钟
 3. title 是简短的要点标题，description 是详细说明
 4. 时间戳格式为 HH:MM:SS 或 MM:SS
